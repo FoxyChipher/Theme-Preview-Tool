@@ -67,11 +67,10 @@ function Carousel({ index, format, onClose, onNavigate, showToast }: CarouselPro
   return (
     <div
       style={{ position: "fixed", inset: 0, background: "rgba(6,6,6,0.96)", backdropFilter: "blur(14px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}
-      onClick={onClose}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
         style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 1400, gap: 16, padding: "0 24px" }}
-        onClick={(e) => e.stopPropagation()}
       >
         {neighbors.map((idx, pos) => {
           const key = fullOrder[idx];
