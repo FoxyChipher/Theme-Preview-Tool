@@ -34,7 +34,8 @@ interface CarouselProps {
   showToast: (s: string) => void;
 }
 
-function Carousel({ index, format, onClose, onNavigate, showToast }: CarouselProps) {
+function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast }: CarouselProps) {
+  const [localFormat, setLocalFormat] = useState<ColorFormat>(initialFormat);
   const total = fullOrder.length;
 
   useEffect(() => {
@@ -81,48 +82,61 @@ function Carousel({ index, format, onClose, onNavigate, showToast }: CarouselPro
           const m3css = getM3TextHex(hex);
           const { r, g, b } = hexToRgb(hex);
           const { h, s, l } = rgbToHsl(r, g, b);
-          const hexVal = formatColor(hex, format);
-          const m3val = formatM3Color(hex, format);
+          const accentVal = formatColor(hex, localFormat);
+          const m3val = formatM3Color(hex, localFormat);
 
           if (isCenter) {
             return (
               <div
                 key={idx}
-                style={{ width: 560, minHeight: 480, background: "#0a0a0a", border: "1px solid #3a3a3a", boxShadow: "0 25px 45px rgba(0,0,0,0.7)", display: "flex", flexDirection: "column", overflow: "hidden", transform: "scale(1.02)", margin: "0 20px" }}
+                style={{ width: 560, minHeight: 460, background: "#0a0a0a", border: "1px solid #3a3a3a", boxShadow: "0 25px 45px rgba(0,0,0,0.7)", display: "flex", flexDirection: "column", overflow: "hidden", transform: "scale(1.02)", margin: "0 20px" }}
               >
-                <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", background: hex }}>
+                {/* ── Герой ── */}
+                <div style={{ padding: "32px 24px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", background: hex }}>
                   <div style={{ fontSize: "2.8rem", fontWeight: 800, letterSpacing: 1, color: adaptive }}>{key}</div>
-                  <div style={{ fontSize: 14, opacity: 0.85, marginTop: 6, color: adaptive, fontFamily: "monospace" }}>{hex.toUpperCase()}</div>
-                  <div style={{ marginTop: 20, display: "flex", gap: 12, background: "rgba(0,0,0,0.3)", padding: "8px 12px", backdropFilter: "blur(4px)" }}>
-                    {([["HEX", hex.toUpperCase()], ["RGB", `rgb(${r}, ${g}, ${b})`], ["HSL", `hsl(${h}, ${s}%, ${l}%)`]] as [string, string][]).map(([label, val]) => (
+                  <div style={{ fontSize: 13, marginTop: 8, color: adaptive, fontFamily: "monospace", fontWeight: 600 }}>{accentVal}</div>
+
+                  {/* ── Кнопки переключения формата ── */}
+                  <div style={{ marginTop: 16, display: "flex", gap: 6, background: "rgba(0,0,0,0.35)", padding: "6px 10px", backdropFilter: "blur(4px)" }}>
+                    {(["hex", "rgb", "hsl"] as ColorFormat[]).map((f) => (
                       <span
-                        key={label}
-                        onClick={() => copyText(val, showToast)}
-                        style={{ background: "rgba(10,10,10,0.85)", color: "#c0c0c0", padding: "6px 16px", cursor: "pointer", fontSize: 11, fontWeight: 600, fontFamily: "monospace" }}
-                        onMouseEnter={(e) => { (e.target as HTMLElement).style.background = "#000"; }}
-                        onMouseLeave={(e) => { (e.target as HTMLElement).style.background = "rgba(10,10,10,0.85)"; }}
-                      >{label}</span>
+                        key={f}
+                        onClick={(e) => { e.stopPropagation(); setLocalFormat(f); }}
+                        style={{
+                          background: localFormat === f ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.7)",
+                          color: localFormat === f ? "#ffffff" : "#a0a0a0",
+                          border: localFormat === f ? "1px solid rgba(255,255,255,0.35)" : "1px solid rgba(255,255,255,0.08)",
+                          padding: "5px 14px", cursor: "pointer", fontSize: 10,
+                          fontWeight: 700, fontFamily: "monospace", textTransform: "uppercase",
+                          transition: "all 0.12s",
+                        }}
+                      >{f}</span>
                     ))}
                   </div>
                 </div>
-                <div style={{ background: "#0c0c0c", padding: "20px 18px", display: "flex", flexDirection: "column", gap: 12, borderTop: "1px solid #2a2a2a" }}>
-                  <div style={{ padding: "12px 14px", fontSize: 13, lineHeight: 1.45, display: "flex", flexDirection: "column", background: hex }}>
-                    <span style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 5, opacity: 0.7, fontWeight: 600, color: "#060606" }}>SYSTEM DEEP DARK (#060606)</span>
-                    <span style={{ fontWeight: 600, fontFamily: "monospace", fontSize: 12.5, color: "#060606" }}>{DEMO_TEXT}</span>
+
+                {/* ── Тест читаемости ── */}
+                <div style={{ background: "#0c0c0c", padding: "16px 18px", display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid #2a2a2a" }}>
+                  <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", background: hex }}>
+                    <span style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 4, opacity: 0.7, fontWeight: 600, color: "#060606" }}>SYSTEM DEEP DARK (#060606)</span>
+                    <span style={{ fontWeight: 600, fontFamily: "monospace", fontSize: 12, color: "#060606" }}>{DEMO_TEXT}</span>
                   </div>
-                  <div style={{ padding: "12px 14px", fontSize: 13, lineHeight: 1.45, display: "flex", flexDirection: "column", background: hex, border: "1px solid rgba(255,255,210,0.2)" }}>
-                    <span style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 5, opacity: 0.7, fontWeight: 600, color: m3css }}>MATERIAL 3 (оттенок, яркость 12%)</span>
-                    <span style={{ fontWeight: 600, fontFamily: "monospace", fontSize: 12.5, color: m3css }}>{DEMO_TEXT}</span>
+                  <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", background: hex, border: "1px solid rgba(255,255,210,0.2)" }}>
+                    <span style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 4, opacity: 0.7, fontWeight: 600, color: m3css }}>MATERIAL 3 (яркость 12%)</span>
+                    <span style={{ fontWeight: 600, fontFamily: "monospace", fontSize: 12, color: m3css }}>{DEMO_TEXT}</span>
                   </div>
-                  <div style={{ marginTop: 8, background: "#181818", padding: 10, border: "1px solid #262626", display: "flex", flexDirection: "column", gap: 6 }}>
-                    {([["Формат:", format.toUpperCase()], ["Цвет акцента:", hexVal], ["Material Text:", m3val], ["HEX оригинал:", hex.toUpperCase()]] as [string, string][]).map(([label, val]) => (
-                      <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                        <span style={{ color: "#767676" }}>{label}</span>
+
+                  {/* ── Значения для копирования ── */}
+                  <div style={{ background: "#181818", padding: "10px 12px", border: "1px solid #262626", display: "flex", flexDirection: "column", gap: 6 }}>
+                    {([["Акцент:", accentVal], ["Material Text:", m3val]] as [string, string][]).map(([label, val]) => (
+                      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11 }}>
+                        <span style={{ color: "#666666" }}>{label}</span>
                         <span
-                          style={{ color: "#e6e6e6", cursor: "pointer", fontFamily: "monospace" }}
+                          style={{ color: "#e6e6e6", cursor: "pointer", fontFamily: "monospace", padding: "1px 4px" }}
                           onClick={() => copyText(val, showToast)}
-                          onMouseEnter={(e) => { (e.target as HTMLElement).style.textDecoration = "underline"; }}
-                          onMouseLeave={(e) => { (e.target as HTMLElement).style.textDecoration = "none"; }}
+                          title="Нажмите чтобы скопировать"
+                          onMouseEnter={(e) => { const el = e.currentTarget; el.style.textDecoration = "underline"; el.style.color = "#ffffff"; }}
+                          onMouseLeave={(e) => { const el = e.currentTarget; el.style.textDecoration = "none"; el.style.color = "#e6e6e6"; }}
                         >{val}</span>
                       </div>
                     ))}
