@@ -169,7 +169,7 @@ function PaletteGrid({ format, onSwatchClick }: PaletteGridProps) {
     const el = containerRef.current;
     if (!el) return;
     const children = Array.from(el.children);
-    const oneCycle = children.slice(0, groupsConfig.length * 2);
+    const oneCycle = children.slice(0, groupsConfig.length);
     let total = 0;
     oneCycle.forEach((child) => {
       const rect = child.getBoundingClientRect();
@@ -449,11 +449,9 @@ export default function PaletteApp() {
     <div style={{ background: "#060606", color: "#d6d6d6", minHeight: "100vh", fontFamily: "'SF Mono','Fira Code',monospace", overflowX: "hidden" }}>
       <Header activeTab={tab} onTab={handleTab} format={format} onFormat={setFormat} showFormat={tab === "palette"} />
 
-      <div style={{ paddingTop: 44 }}>
-        {tab === "palette" && <PaletteGrid format={format} onSwatchClick={openCarousel} />}
-        {tab === "base"    && <BaseTab showToast={show} />}
-        {tab === "accent"  && <AccentTab showToast={show} />}
-      </div>
+      {tab === "palette" && <PaletteGrid format={format} onSwatchClick={openCarousel} />}
+      {tab === "base"    && <div style={{ paddingTop: 44 }}><BaseTab showToast={show} /></div>}
+      {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} /></div>}
 
       {carouselIdx !== null && (
         <Carousel index={carouselIdx} format={format} onClose={closeCarousel} onNavigate={navigate} showToast={show} />
