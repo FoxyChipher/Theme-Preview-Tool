@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Мостовая палитра • строгая геометрия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background: #060606;
+            color: #d6d6d6;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+        
+        /* главная сетка */
+        .palette {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            padding: 20px;
+        }
+        
+        /* мост (доминантный цвет: 00,60,120,180,240,300) — без закруглений */
+        .bridge-container {
+            width: 100%;
+            height: 76px;
+            margin: 4px 0 0 0;
+            position: relative;
+            z-index: 2;
+        }
+        .bridge-step {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            transition: filter 0.2s, transform 0.1s;
+            clip-path: polygon(
+                0% 85%, 22% 85%, 
+                22% 15%, 78% 15%, 
+                78% 0%, 100% 0%, 
+                100% 15%, 78% 15%, 
+                78% 85%, 22% 85%, 
+                22% 100%, 0% 100%
+            );
+            background-blend-mode: overlay;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            border-radius: 0px;
+        }
+        .bridge-step:hover {
+            filter: brightness(1.1);
+            transform: scaleY(1.01);
+        }
+        .bridge-step span {
+            font-size: 10px;
+            font-weight: 400;
+            opacity: 0.75;
+            margin-top: 3px;
+        }
+
+        /* ряд из 5 цветов — без скруглений */
+        .group-row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            background: #0c0c0c;
+            padding: 12px 8px;
+            border: 1px solid #262626;
+            border-radius: 0px;
+            margin-bottom: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        .swatch {
+            flex: 1;
+            aspect-ratio: 1 / 1;
+            min-width: 65px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s cubic-bezier(0.2,0.9,0.4,1.1), box-shadow 0.1s;
+            text-align: center;
+            padding: 5px 2px;
+            border-radius: 0px;
+            background-clip: padding-box;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .swatch:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 14px rgba(255,255,220,0.3);
+            z-index: 10;
+            filter: brightness(1.02);
+        }
+        
+        /* карусель + тестирование — все углы строгие */
+        .carousel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6,6,6,0.96);
+            backdrop-filter: blur(14px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s;
+        }
+        .carousel-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1400px;
+            gap: 16px;
+            padding: 0 24px;
+        }
+        .carousel-item {
+            transition: transform 0.28s cubic-bezier(0.2, 0.85, 0.4, 1), opacity 0.25s;
+            background: #161616;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+            border-radius: 0px;
+        }
+        .carousel-item.side {
+            width: 120px;
+            height: 140px;
+            opacity: 0.45;
+            filter: brightness(0.65);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 0px;
+        }
+        .carousel-item.side:hover {
+            opacity: 0.85;
+            filter: brightness(0.92);
+            transform: scale(1.05);
+        }
+        .carousel-item.center {
+            width: 560px;
+            min-height: 480px;
+            transform: scale(1.02);
+            margin: 0 20px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.7);
+            border: 1px solid #3a3a3a;
+            cursor: default;
+            background: #0a0a0a;
+            border-radius: 0px;
+        }
+        .center-hero {
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: background 0.1s;
+            border-radius: 0px;
+        }
+        .color-info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            backdrop-filter: blur(4px);
+            border-radius: 0px;
+        }
+        .color-info-panel span {
+            background: rgba(10, 10, 10, 0.85);
+            color: #c0c0c0;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.1s;
+            border-radius: 0px;
+        }
+        .color-info-panel span:hover {
+            background: #000000;
+            transform: scale(0.96);
+        }
+        .center-tester-zone {
+            background: #0c0c0c;
+            padding: 20px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid #2a2a2a;
+        }
+        .test-row {
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.45;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0px;
+        }
+        .test-row .label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 5px;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+        .test-row .sample-text {
+            font-weight: 600;
+            word-break: break-word;
+            font-family: monospace;
+            font-size: 12.5px;
+        }
+        .close-hint {
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #aaa;
+            font-size: 11px;
+            background: #111111cc;
+            padding: 4px 14px;
+            backdrop-filter: blur(8px);
+            z-index: 1100;
+            pointer-events: none;
+            border-radius: 0px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #eaeaea;
+            color: #0a0a0a;
+            padding: 8px 22px;
+            font-weight: bold;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s;
+            z-index: 1200;
+            font-family: monospace;
+            border-radius: 0px;
+        }
+        @media (max-width: 780px) {
+            .group-row { gap: 6px; flex-wrap: wrap; }
+            .swatch { min-width: 70px; flex: 1 0 70px; aspect-ratio: 1/1; }
+            .bridge-container { height: 58px; }
+            .carousel-item.center { width: 92%; min-height: 420px; margin: 0; }
+            .carousel-item.side { display: none; }
+            .center-hero { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="palette" id="palette"></div>
+
+<div class="carousel-overlay" id="carouselOverlay">
+    <div class="carousel-container" id="carouselContainer"></div>
+    <div class="close-hint">ESC / фон – закрыть  •  ◀  ▶  колесо / стрелки</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // --------------------------------------------------------------
+    // ПОЛНАЯ ПАЛИТРА (36 цветов)
+    // --------------------------------------------------------------
+    const allColors = {
+        "00": "#f69696", "10": "#f6a696", "20": "#f6b696", "30": "#f6c696", "40": "#f6d696", "50": "#f6e696",
+        "60": "#f6f696", "70": "#e6f696", "80": "#d6f696", "90": "#c6f696", "100": "#b6f696", "110": "#a6f696",
+        "120": "#96f696", "130": "#96f6a6", "140": "#96f6b6", "150": "#96f6c6", "160": "#96f6d6", "170": "#96f6e6",
+        "180": "#96f6f6", "190": "#96e6f6", "200": "#96d6f6", "210": "#96c6f6", "220": "#96b6f6", "230": "#96a6f6",
+        "240": "#9696f6", "250": "#a696f6", "260": "#b696f6", "270": "#c696f6", "280": "#d696f6", "290": "#e696f6",
+        "300": "#f696f6", "310": "#f696e6", "320": "#f696d6", "330": "#f696c6", "340": "#f696b6", "350": "#f696a6"
+    };
+
+    const fullOrder = [
+        "00","10","20","30","40","50","60","70","80","90","100","110",
+        "120","130","140","150","160","170","180","190","200","210","220","230",
+        "240","250","260","270","280","290","300","310","320","330","340","350"
+    ];
+
+    // --------------------------------------------------------------
+    // КОНФИГУРАЦИЯ: 6 мостов + 6 линий (ровно по 5 цветов)
+    // --------------------------------------------------------------
+    const groupsConfig = [
+        { bridgeKey: "00", rowKeys: ["10","20","30","40","50"] },
+        { bridgeKey: "60", rowKeys: ["70","80","90","100","110"] },
+        { bridgeKey: "120", rowKeys: ["130","140","150","160","170"] },
+        { bridgeKey: "180", rowKeys: ["190","200","210","220","230"] },
+        { bridgeKey: "240", rowKeys: ["250","260","270","280","290"] },
+        { bridgeKey: "300", rowKeys: ["310","320","330","340","350"] }
+    ];
+
+    // вспомогательные функции цвета
+    function getTextColor(hex) {
+        const r = parseInt(hex.slice(1,3), 16);
+        const g = parseInt(hex.slice(3,5), 16);
+        const b = parseInt(hex.slice(5,7), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 > 140 ? '#060606' : '#e0e0e0'; // слегка светлый, но не чисто белый
+    }
+
+    function getM3TextColor(hex) {
+        let r = parseInt(hex.slice(1,3), 16) / 255;
+        let g = parseInt(hex.slice(3,5), 16) / 255;
+        let b = parseInt(hex.slice(5,7), 16) / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s;
+        const d = max - min;
+        if (max === min) h = s = 0;
+        else {
+            s = (max + min) / 2 > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, 12%)`;
+    }
+
+    function rgbToHslStr(hex) {
+        let r = parseInt(hex.slice(1,3), 16) / 255;
+        let g = parseInt(hex.slice(3,5), 16) / 255;
+        let b = parseInt(hex.slice(5,7), 16) / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) h = s = 0;
+        else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h *= 60;
+        }
+        return `${Math.round(h)}, ${Math.round(s*100)}%, ${Math.round(l*100)}%`;
+    }
+
+    const toastEl = document.getElementById('toast');
+    let toastTimer;
+    function showToast(text) {
+        clearTimeout(toastTimer);
+        toastEl.textContent = text;
+        toastEl.style.opacity = '1';
+        toastTimer = setTimeout(() => toastEl.style.opacity = '0', 1300);
+    }
+
+    // --------------------------------------------------------------
+    // ГЕНЕРАЦИЯ БЕСКОНЕЧНОЙ ПАЛИТРЫ
+    // --------------------------------------------------------------
+    function createCycleNode() {
+        const fragment = document.createDocumentFragment();
+        groupsConfig.forEach(group => {
+            // мост
+            const bridgeHex = allColors[group.bridgeKey];
+            const bridgeContainer = document.createElement('div');
+            bridgeContainer.className = 'bridge-container';
+            const bridgeBlock = document.createElement('div');
+            bridgeBlock.className = 'bridge-step';
+            bridgeBlock.style.backgroundColor = bridgeHex;
+            bridgeBlock.style.color = getTextColor(bridgeHex);
+            bridgeBlock.dataset.key = group.bridgeKey;
+            bridgeBlock.innerHTML = `
+                <div style="font-weight: 800; font-size: 1.2rem;">${group.bridgeKey}</div>
+                <span>${bridgeHex}</span>
+            `;
+            bridgeContainer.appendChild(bridgeBlock);
+            fragment.appendChild(bridgeContainer);
+            
+            // строка из 5 цветов
+            const row = document.createElement('div');
+            row.className = 'group-row';
+            group.rowKeys.forEach(key => {
+                const hex = allColors[key];
+                if (!hex) return;
+                const swatch = document.createElement('div');
+                swatch.className = 'swatch';
+                swatch.style.backgroundColor = hex;
+                swatch.style.color = getTextColor(hex);
+                swatch.dataset.key = key;
+                swatch.innerHTML = `
+                    <div style="font-weight: 700; font-size: 11px;">${key}</div>
+                    <div style="font-size: 8px; opacity: 0.7; margin-top: 3px;">${hex}</div>
+                `;
+                row.appendChild(swatch);
+            });
+            fragment.appendChild(row);
+        });
+        return fragment;
+    }
+
+    const paletteContainer = document.getElementById('palette');
+    for (let i = 0; i < 3; i++) {
+        paletteContainer.appendChild(createCycleNode());
+    }
+
+    // бесконечный скролл
+    let cycleHeight = 0;
+    function calcCycleHeight() {
+        const children = Array.from(paletteContainer.children);
+        const oneCycle = children.slice(0, 12);
+        let total = 0;
+        oneCycle.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const style = window.getComputedStyle(el);
+            const marginTop = parseFloat(style.marginTop);
+            const marginBottom = parseFloat(style.marginBottom);
+            total += rect.height + marginTop + marginBottom;
+        });
+        cycleHeight = total;
+    }
+
+    function initInfinite() {
+        calcCycleHeight();
+        if (cycleHeight) window.scrollTo(0, cycleHeight);
+    }
+
+    window.addEventListener('load', () => {
+        initInfinite();
+        setTimeout(calcCycleHeight, 100);
+    });
+
+    window.addEventListener('scroll', () => {
+        if (!cycleHeight) return;
+        const top = window.scrollY;
+        if (top < cycleHeight - 150) {
+            window.scrollTo(0, top + cycleHeight);
+        } else if (top > (cycleHeight * 2) + 150) {
+            window.scrollTo(0, top - cycleHeight);
+        }
+    });
+    
+    window.addEventListener('resize', () => {
+        calcCycleHeight();
+        const current = window.scrollY;
+        if (current > cycleHeight * 2 || current < cycleHeight) {
+            window.scrollTo(0, cycleHeight);
+        }
+    });
+
+    // клик для открытия карусели
+    function getColorIndex(key) {
+        return fullOrder.indexOf(key);
+    }
+
+    paletteContainer.addEventListener('click', (e) => {
+        const target = e.target.closest('.swatch, .bridge-step');
+        if (!target) return;
+        const key = target.dataset.key;
+        if (key && allColors[key]) {
+            const idx = getColorIndex(key);
+            if (idx !== -1) openCarousel(idx);
+        }
+    });
+
+    // ========== КАРУСЕЛЬ (без белого текста и эмодзи) ==========
+    let currentIndex = 0;
+    let isCarouselActive = false;
+    const overlay = document.getElementById('carouselOverlay');
+    const carouselContainerDiv = document.getElementById('carouselContainer');
+    const testString = `!"№@#$;%^:&?*()_+.,<>фывasd | ТЕСТ: читаемость UI`;
+
+    function renderCarousel() {
+        if (!carouselContainerDiv) return;
+        carouselContainerDiv.innerHTML = '';
+        const total = fullOrder.length;
+        const neighbors = [
+            (currentIndex - 2 + total) % total,
+            (currentIndex - 1 + total) % total,
+            currentIndex,
+            (currentIndex + 1) % total,
+            (currentIndex + 2) % total
+        ];
+        
+        neighbors.forEach((idx, pos) => {
+            const key = fullOrder[idx];
+            const hex = allColors[key];
+            const isCenter = (pos === 2);
+            const item = document.createElement('div');
+            
+            if (isCenter) {
+                item.className = 'carousel-item center';
+                const r = parseInt(hex.slice(1,3), 16);
+                const g = parseInt(hex.slice(3,5), 16);
+                const b = parseInt(hex.slice(5,7), 16);
+                const m3color = getM3TextColor(hex);
+                const adaptive = getTextColor(hex);
+                
+                item.innerHTML = `
+                    <div class="center-hero" style="background-color: ${hex}; color: ${adaptive};">
+                        <div style="font-size: 2.8rem; font-weight: 800; letter-spacing: 1px;">${key}</div>
+                        <div style="font-size: 14px; opacity: 0.85; margin-top: 6px;">${hex}</div>
+                        <div class="color-info-panel">
+                            <span data-copy="${hex}">HEX</span>
+                            <span data-copy="rgb(${r},${g},${b})">RGB</span>
+                            <span data-copy="hsl(${rgbToHslStr(hex)})">HSL</span>
+                        </div>
+                    </div>
+                    <div class="center-tester-zone">
+                        <div class="test-row" style="background-color: ${hex}; color: #060606;">
+                            <span class="label" style="color: #060606;">SYSTEM DEEP DARK (#060606)</span>
+                            <span class="sample-text">${testString}</span>
+                        </div>
+                        <div class="test-row" style="background-color: ${hex}; color: ${m3color}; border: 1px solid rgba(255,255,210,0.2);">
+                            <span class="label" style="color: ${m3color};">MATERIAL 3 (оттенок, яркость 12%)</span>
+                            <span class="sample-text">${testString}</span>
+                        </div>
+                    </div>
+                `;
+                
+                const copyPanel = item.querySelector('.color-info-panel');
+                if (copyPanel) {
+                    copyPanel.addEventListener('click', (ev) => {
+                        const span = ev.target.closest('span');
+                        if (span && span.dataset.copy) {
+                            ev.stopPropagation();
+                            navigator.clipboard.writeText(span.dataset.copy).then(() => {
+                                showToast(`скопировано: ${span.dataset.copy}`);
+                            }).catch(() => showToast(`ошибка копирования`));
+                        }
+                    });
+                }
+            } else {
+                item.className = 'carousel-item side';
+                item.style.backgroundColor = hex;
+                item.style.color = getTextColor(hex);
+                item.innerHTML = `<div style="font-size: 1.5rem; font-weight: bold;">${key}</div><div style="font-size: 9px; margin-top: 6px;">${hex}</div>`;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    currentIndex = idx;
+                    renderCarousel();
+                });
+            }
+            carouselContainerDiv.appendChild(item);
+        });
+    }
+    
+    function openCarousel(startIdx) {
+        currentIndex = startIdx;
+        isCarouselActive = true;
+        renderCarousel();
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeCarousel() {
+        isCarouselActive = false;
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeCarousel();
+    });
+    
+    window.addEventListener('keydown', (e) => {
+        if (!isCarouselActive) return;
+        if (e.key === 'Escape') {
+            closeCarousel();
+            e.preventDefault();
+        }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            currentIndex = (currentIndex + 1) % fullOrder.length;
+            renderCarousel();
+            e.preventDefault();
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            currentIndex = (currentIndex - 1 + fullOrder.length) % fullOrder.length;
+            renderCarousel();
+            e.preventDefault();
+        }
+    });
+    
+    overlay.addEventListener('wheel', (e) => {
+        if (!isCarouselActive) return;
+        e.preventDefault();
+        if (e.deltaY > 0) {
+            currentIndex = (currentIndex + 1) % fullOrder.length;
+        } else {
+            currentIndex = (currentIndex - 1 + fullOrder.length) % fullOrder.length;
+        }
+        renderCarousel();
+    }, { passive: false });
+    
+    window.addEventListener('resize', () => {
+        if (isCarouselActive) renderCarousel();
+        calcCycleHeight();
+    });
+</script>
+</body>
+</html>

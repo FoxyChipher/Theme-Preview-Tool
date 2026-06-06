@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Палитра Base + Accent | Текст из onAccent</title>
+    <style>
+        /* ---------- Базовые монохромные цвета (системные) ---------- */
+        :root {
+            --base-0: #060606; --base-1: #161616; --base-2: #262626;
+            --base-3: #363636; --base-4: #464646; --base-5: #565656;
+            --base-6: #666666; --base-7: #767676; --base-8: #868686;
+            --base-9: #969696; --base-a: #a6a6a6; --base-b: #b6b6b6;
+            --base-c: #c6c6c6; --base-d: #d6d6d6; --base-e: #e6e6e6;
+            --base-f: #f6f6f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--base-0);
+            color: var(--base-d);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "FiraCode Nerd Font Mono", monospace;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--base-f);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .sub {
+            text-align: center;
+            color: var(--base-6);
+            margin-bottom: 2.5rem;
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            color: var(--base-e);
+            border-bottom: 1px solid var(--base-3);
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Сетка акцентов — прямые углы */
+        .accent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background-color: var(--base-1);
+            border: 1px solid var(--base-3);
+            border-radius: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Заголовок: ключ слева, название по центру, пустой блок справа для баланса */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.9rem;
+            font-family: monospace;
+            border-bottom: 1px solid var(--base-2);
+            padding-bottom: 0.4rem;
+        }
+        .card-header .key {
+            color: var(--base-f);
+            font-weight: bold;
+            flex: 0 0 auto;
+        }
+        .card-header .color-name {
+            flex: 1;
+            text-align: center;
+            font-size: 0.85rem;
+            background: var(--base-2);
+            padding: 0.1rem 0.5rem;
+            font-weight: 500;
+            margin: 0 0.5rem;
+        }
+        .card-header .placeholder {
+            flex: 0 0 auto;
+            width: 2rem;
+            visibility: hidden;
+        }
+
+        .sample-row {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            border-radius: 0;
+            word-break: break-all;
+            font-weight: 600;
+        }
+
+        /* Блок копирования с квадратиками */
+        .code-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--base-0);
+            padding: 10px;
+            border: 1px dashed var(--base-3);
+            margin-top: 0.25rem;
+        }
+        .code-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+        .code-label {
+            color: var(--base-6);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .color-swatch {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--base-4);
+            background-color: currentColor;
+            flex-shrink: 0;
+        }
+        .clickable-hex {
+            color: var(--base-c);
+            cursor: pointer;
+            padding: 2px 8px;
+            background: var(--base-1);
+            border: 1px solid var(--base-2);
+            font-family: monospace;
+            transition: all 0.1s;
+        }
+        .clickable-hex:hover {
+            border-color: var(--base-6);
+            color: var(--base-f);
+            background: var(--base-2);
+        }
+
+        /* Таблица Base */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--base-1);
+            border: 1px solid var(--base-3);
+            overflow: hidden;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 0.7rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--base-2);
+        }
+        th {
+            background-color: var(--base-2);
+            color: var(--base-f);
+            font-weight: 600;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 0.6rem;
+            border: 1px solid var(--base-4);
+        }
+        .base-example {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+        }
+        .copy-hex-base {
+            cursor: pointer;
+            display: inline-block;
+            padding: 2px 4px;
+            background: var(--base-2);
+            border: 1px solid var(--base-3);
+        }
+        .copy-hex-base:hover {
+            background: var(--base-3);
+            color: var(--base-f);
+        }
+
+        /* уведомление */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--base-4);
+            color: var(--base-f);
+            padding: 8px 16px;
+            border: 1px solid var(--base-6);
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎨 Полная спецификация палитры</h1>
+    <div class="sub">Базовая (0…f) + акцентная (0…z) | Текст из секции <strong>onAccent</strong> (глубокие тона)</div>
+
+    <h2>1. Системная монохромная палитра</h2>
+    <table id="base-table">
+        <thead><tr><th>Ключ</th><th>HEX</th><th>Назначение</th><th>Пример</th></tr></thead>
+        <tbody id="base-tbody"></tbody>
+    </table>
+
+    <h2>2. Акцентная палитра — полный спектр 0…z</h2>
+    <div class="accent-grid" id="accent-grid"></div>
+</div>
+<div class="toast" id="toast">Скопировано</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 1. БАЗОВАЯ ПАЛИТРА (0..f) — из конфига
+    // --------------------------------------------------------------
+    const basePalette = {
+        "0": { hex: "#060606", desc: "фон окна, пустота", example: '<span class="base-example" style="background:#060606; color:#666;">фон</span>' },
+        "1": { hex: "#161616", desc: "фон кнопок / карточек", example: '<span class="base-example" style="background:#161616; color:#d6d6d6; border:1px solid #363636;">кнопка</span>' },
+        "2": { hex: "#262626", desc: "панельки, статусбары", example: '<span class="base-example" style="background:#262626; color:#b6b6b6;">статус</span>' },
+        "3": { hex: "#363636", desc: "неактивные границы", example: '<span class="base-example" style="border:2px solid #363636; color:#666;">граница</span>' },
+        "4": { hex: "#464646", desc: "фон выделенного текста", example: '<span class="base-example" style="background:#464646; color:#e6e6e6;">выделено</span>' },
+        "5": { hex: "#565656", desc: "подсветка строки", example: '<span class="base-example" style="background:#565656; color:#f6f6f6;">строка</span>' },
+        "6": { hex: "#666666", desc: "комментарии", example: '<span style="color:#666; font-style:italic;"># комментарий</span>' },
+        "7": { hex: "#767676", desc: "разделители", example: '<span>текст</span> <span style="color:#767676;">|</span> <span>текст</span>' },
+        "8": { hex: "#868686", desc: "отступы, маркеры", example: '<span style="color:#868686;">• маркер</span>' },
+        "9": { hex: "#969696", desc: "иконки / неактивные вкладки", example: '<span class="base-example" style="color:#969696; background:#161616;">вкладка</span>' },
+        "a": { hex: "#a6a6a6", desc: "второстепенная инфа", example: '<span>файл.txt</span> <span style="color:#a6a6a6;">(1.2 КБ)</span>' },
+        "b": { hex: "#b6b6b6", desc: "текст статусбара", example: '<span class="base-example" style="background:#262626; color:#b6b6b6;">LN 42, COL 12</span>' },
+        "c": { hex: "#c6c6c6", desc: "почти-основной текст", example: '<span style="color:#c6c6c6;">вспомогательный текст</span>' },
+        "d": { hex: "#d6d6d6", desc: "основной текст", example: '<span style="color:#d6d6d6;">обычный текст</span>' },
+        "e": { hex: "#e6e6e6", desc: "выделенный текст", example: '<span style="color:#e6e6e6; font-weight:bold;">ключевое слово</span>' },
+        "f": { hex: "#f6f6f6", desc: "заголовки", example: '<span style="color:#f6f6f6; font-weight:800;">ЗАГОЛОВОК</span>' }
+    };
+
+    // --------------------------------------------------------------
+    // 2. АКЦЕНТНАЯ ПАЛИТРА (0..z) + onAccent (текст) — строго из конфига
+    // --------------------------------------------------------------
+    const accentColors = {
+        "0": { hex: "#f69696", name: "Red", onHex: "#660606" },
+        "1": { hex: "#f6a696", name: "Coral", onHex: "#661606" },
+        "2": { hex: "#f6b696", name: "Salmon", onHex: "#662606" },
+        "3": { hex: "#f6c696", name: "Orange", onHex: "#663606" },
+        "4": { hex: "#f6d696", name: "Apricot", onHex: "#664606" },
+        "5": { hex: "#f6e696", name: "Peach", onHex: "#665606" },
+        "6": { hex: "#f6f696", name: "Yellow", onHex: "#666606" },
+        "7": { hex: "#e6f696", name: "Light Yellow", onHex: "#566606" },
+        "8": { hex: "#d6f696", name: "Lime Yellow", onHex: "#466606" },
+        "9": { hex: "#c6f696", name: "Lime", onHex: "#366606" },
+        "a": { hex: "#b6f696", name: "Light Green", onHex: "#266606" },
+        "b": { hex: "#a6f696", name: "Pale Green", onHex: "#166606" },
+        "c": { hex: "#96f696", name: "Green", onHex: "#066606" },
+        "d": { hex: "#96f6a6", name: "Seafoam", onHex: "#066616" },
+        "e": { hex: "#96f6b6", name: "Mint Light", onHex: "#066626" },
+        "f": { hex: "#96f6c6", name: "Mint", onHex: "#066636" },
+        "g": { hex: "#96f6d6", name: "Turquoise Light", onHex: "#066646" },
+        "h": { hex: "#96f6e6", name: "Aqua", onHex: "#066656" },
+        "i": { hex: "#96f6f6", name: "Cyan", onHex: "#066666" },
+        "j": { hex: "#96e6f6", name: "Sky Blue", onHex: "#065666" },
+        "k": { hex: "#96d6f6", name: "Light Blue", onHex: "#064666" },
+        "l": { hex: "#96c6f6", name: "Blue", onHex: "#063666" },
+        "m": { hex: "#96b6f6", name: "Periwinkle", onHex: "#062666" },
+        "n": { hex: "#96a6f6", name: "Lavender", onHex: "#061666" },
+        "o": { hex: "#9696f6", name: "Indigo", onHex: "#060666" },
+        "p": { hex: "#a696f6", name: "Violet", onHex: "#160666" },
+        "q": { hex: "#b696f6", name: "Plum", onHex: "#260666" },
+        "r": { hex: "#c696f6", name: "Purple", onHex: "#360666" },
+        "s": { hex: "#d696f6", name: "Orchid", onHex: "#460666" },
+        "t": { hex: "#e696f6", name: "Fuchsia", onHex: "#560666" },
+        "u": { hex: "#f696f6", name: "Magenta", onHex: "#660666" },
+        "v": { hex: "#f696e6", name: "Hot Pink", onHex: "#660656" },
+        "w": { hex: "#f696d6", name: "Rose", onHex: "#660646" },
+        "x": { hex: "#f696c6", name: "Pink", onHex: "#660636" },
+        "y": { hex: "#f696b6", name: "Blush", onHex: "#660626" },
+        "z": { hex: "#f696a6", name: "Light Red", onHex: "#660616" }
+    };
+
+    const demoText = '!"№@#$;%^:&?*()_+.,<>фывasd';
+
+    // Утилита копирования
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            toast.textContent = `Скопировано: ${text}`;
+            toast.style.opacity = '1';
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 1000);
+        });
+    }
+
+    // Рендер базовой таблицы
+    const baseTbody = document.getElementById('base-tbody');
+    Object.entries(basePalette).forEach(([key, item]) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>"${key}"</strong></td>
+            <td><span class="copy-hex-base" data-copy="${item.hex}" style="cursor:pointer;">${item.hex}</span></td>
+            <td>${item.desc}</td>
+            <td><span class="swatch" style="background-color: ${item.hex};"></span> ${item.example}</td>
+        `;
+        row.querySelector('.copy-hex-base').addEventListener('click', (e) => {
+            e.stopPropagation();
+            copyToClipboard(item.hex);
+        });
+        baseTbody.appendChild(row);
+    });
+
+    // Рендер акцентных карточек (с использованием onAccent)
+    const accentGrid = document.getElementById('accent-grid');
+    Object.entries(accentColors).forEach(([key, color]) => {
+        const hexUp = color.hex.toUpperCase();
+        const textColor = color.onHex.toUpperCase();
+        const card = document.createElement('div');
+        card.className = 'card';
+        // Заголовок: ключ слева, название по центру, пустой справа
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="key">"${key}"</span>
+                <span class="color-name" style="color: ${hexUp};">${color.name}</span>
+                <span class="placeholder"></span>
+            </div>
+            <!-- Строка с чёрным текстом (#060606) -->
+            <div class="sample-row" style="background-color: ${hexUp}; color: #060606;">
+                ${demoText}
+            </div>
+            <!-- Строка с текстом из onAccent -->
+            <div class="sample-row" style="background-color: ${hexUp}; color: ${textColor}; border: 1px solid rgba(0,0,0,0.1);">
+                ${demoText}
+            </div>
+            <div class="code-meta">
+                <div class="code-row">
+                    <div class="code-label">
+                        <span class="color-swatch" style="background-color: ${hexUp};"></span>
+                        Акцентный фон:
+                    </div>
+                    <span class="clickable-hex" data-copy="${hexUp}">${hexUp}</span>
+                </div>
+                <div class="code-row">
+                    <div class="code-label">
+                        <span class="color-swatch" style="background-color: ${textColor};"></span>
+                        Текст (onAccent):
+                    </div>
+                    <span class="clickable-hex" data-copy="${textColor}">${textColor}</span>
+                </div>
+            </div>
+        `;
+        // Обработчики копирования
+        card.querySelectorAll('.clickable-hex').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const val = el.getAttribute('data-copy') || el.textContent.trim();
+                copyToClipboard(val);
+            });
+        });
+        accentGrid.appendChild(card);
+    });
+</script>
+</body>
+</html>

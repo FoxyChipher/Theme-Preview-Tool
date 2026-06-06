@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #060606;
+  color: #d6d6d6;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  overflow-x: hidden;
+}
+
+:root {
+  --background: 0 0% 2%;
+  --foreground: 0 0% 84%;
+  --border: 0 0% 22%;
+  --card: 0 0% 9%;
+  --card-foreground: 0 0% 84%;
+  --card-border: 0 0% 22%;
+  --sidebar: 0 0% 9%;
+  --sidebar-foreground: 0 0% 84%;
+  --sidebar-border: 0 0% 22%;
+  --sidebar-primary: 0 0% 84%;
+  --sidebar-primary-foreground: 0 0% 2%;
+  --sidebar-accent: 0 0% 16%;
+  --sidebar-accent-foreground: 0 0% 84%;
+  --sidebar-ring: 0 0% 50%;
+  --popover: 0 0% 9%;
+  --popover-foreground: 0 0% 84%;
+  --popover-border: 0 0% 22%;
+  --primary: 0 0% 84%;
+  --primary-foreground: 0 0% 2%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 84%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 0 0% 28%;
+  --accent-foreground: 0 0% 96%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 96%;
+  --input: 0 0% 22%;
+  --ring: 0 0% 60%;
+  --radius: 0rem;
+}
