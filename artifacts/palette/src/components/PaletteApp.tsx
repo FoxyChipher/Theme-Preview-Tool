@@ -71,6 +71,7 @@ function Carousel({ index, format, onClose, onNavigate, showToast }: CarouselPro
     >
       <div
         style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 1400, gap: 16, padding: "0 24px" }}
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         {neighbors.map((idx, pos) => {
           const key = fullOrder[idx];
