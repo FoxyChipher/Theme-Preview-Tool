@@ -245,20 +245,19 @@ function PaletteGrid({ format, lang, onSwatchClick }: PaletteGridProps) {
         <div key={`${cycleIdx}-${group.bridgeKey}`}>
           <div style={{ width: "100%", height: 92, margin: "4px 0 0 0", position: "relative", zIndex: 2, cursor: "pointer" }} onClick={() => onSwatchClick(bridgeAccentIdx)}>
             <div
-              style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, letterSpacing: "0.8px", backgroundColor: bridgeHex, color: bridgeTextColor, clipPath: "polygon(0% 85%, 22% 85%, 22% 15%, 78% 15%, 78% 0%, 100% 0%, 100% 15%, 78% 15%, 78% 85%, 22% 85%, 22% 100%, 0% 100%)", boxShadow: "0 2px 6px rgba(0,0,0,0.4)", transition: "filter 0.2s, transform 0.1s" }}
+              style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: bridgeHex, color: bridgeTextColor, clipPath: "polygon(0% 85%, 22% 85%, 22% 15%, 78% 15%, 78% 0%, 100% 0%, 100% 15%, 78% 15%, 78% 85%, 22% 85%, 22% 100%, 0% 100%)", boxShadow: "0 2px 6px rgba(0,0,0,0.4)", transition: "filter 0.2s, transform 0.1s", gap: 3 }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.filter = "brightness(1.1)"; (e.currentTarget as HTMLElement).style.transform = "scaleY(1.01)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.filter = ""; (e.currentTarget as HTMLElement).style.transform = ""; }}
             >
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span style={{ fontWeight: 800, fontSize: "1.2rem" }}>{group.bridgeKey}</span>
-                {bridgeAccentKey && <span style={{ fontWeight: 400, fontSize: "0.7rem", opacity: 0.65 }}>"{bridgeAccentKey}"</span>}
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 400, opacity: 0.75, marginTop: 2 }}>{formatColor(bridgeHex, format)}</span>
               {bridgeAccent && (
-                <span style={{ marginTop: 4, fontSize: "0.65rem", fontWeight: 700, fontFamily: "sans-serif", background: bridgeAccent.onHex, color: bridgeHex, padding: "1px 6px", whiteSpace: "nowrap" }}>
-                  {lang === "ru" ? bridgeAccent.name.split(" / ")[0] : (bridgeAccent.name.split(" / ")[1] || bridgeAccent.name.split(" / ")[0])}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ fontSize: "0.7rem", fontWeight: 700, fontFamily: "sans-serif", background: bridgeAccent.onHex, color: bridgeHex, padding: "1px 8px", whiteSpace: "nowrap" }}>
+                    {lang === "ru" ? bridgeAccent.name.split(" / ")[0] : (bridgeAccent.name.split(" / ")[1] || bridgeAccent.name.split(" / ")[0])}
+                  </span>
+                  <span style={{ fontFamily: "monospace", fontSize: "0.65rem", opacity: 0.7, whiteSpace: "nowrap" }}>"{bridgeAccentKey}"</span>
+                </div>
               )}
+              <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.65, fontFamily: "monospace" }}>{formatColor(bridgeHex, format)}</span>
             </div>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "stretch", background: "#0c0c0c", padding: "12px 8px", border: "1px solid #262626", marginBottom: 2, position: "relative", zIndex: 1 }}>
@@ -276,14 +275,13 @@ function PaletteGrid({ format, lang, onSwatchClick }: PaletteGridProps) {
                   onMouseEnter={(e) => { const el = e.currentTarget; el.style.transform = "scale(1.03)"; el.style.boxShadow = "0 0 14px rgba(255,255,220,0.3)"; el.style.zIndex = "10"; }}
                   onMouseLeave={(e) => { const el = e.currentTarget; el.style.transform = ""; el.style.boxShadow = "0 1px 2px rgba(0,0,0,0.2)"; el.style.zIndex = ""; }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: 11 }}>{key}</div>
-                  {accentKey && <div style={{ fontSize: 7, opacity: 0.55 }}>"{accentKey}"</div>}
-                  <div style={{ fontSize: 7, opacity: 0.75, marginTop: 1 }}>{formatColor(hex, format)}</div>
-                  {accentName && (
-                    <div style={{ marginTop: 3, fontSize: "0.55rem", fontWeight: 700, fontFamily: "sans-serif", background: accent?.onHex, color: hex, padding: "1px 4px", lineHeight: 1.4, maxWidth: "90%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {accentName && accent && (
+                    <div style={{ fontSize: "0.6rem", fontWeight: 700, fontFamily: "sans-serif", background: accent.onHex, color: hex, padding: "1px 5px", lineHeight: 1.5, textAlign: "center", wordBreak: "break-word" }}>
                       {accentName}
                     </div>
                   )}
+                  {accentKey && <div style={{ fontSize: "0.6rem", opacity: 0.65, fontFamily: "monospace" }}>"{accentKey}"</div>}
+                  <div style={{ fontSize: 7, opacity: 0.6, fontFamily: "monospace" }}>{formatColor(hex, format)}</div>
                 </div>
               );
             })}
