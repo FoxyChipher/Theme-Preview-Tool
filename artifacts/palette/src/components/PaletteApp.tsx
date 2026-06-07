@@ -171,10 +171,11 @@ function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast
 
 interface PaletteGridProps {
   format: ColorFormat;
+  lang: "ru" | "en";
   onSwatchClick: (idx: number) => void;
 }
 
-function PaletteGrid({ format, onSwatchClick }: PaletteGridProps) {
+function PaletteGrid({ format, lang, onSwatchClick }: PaletteGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cycleHeightRef = useRef(0);
   const isScrollingRef = useRef(false);
@@ -232,36 +233,57 @@ function PaletteGrid({ format, onSwatchClick }: PaletteGridProps) {
     return () => window.removeEventListener("resize", onResize);
   }, [calcCycleHeight]);
 
+  const accentEntries = Object.entries(accentColors);
+
   const renderCycle = (cycleIdx: number) =>
     groupsConfig.map((group) => {
       const bridgeHex = allColors[group.bridgeKey];
       const bridgeTextColor = getTextColor(bridgeHex);
+      const bridgeAccentIdx = fullOrder.indexOf(group.bridgeKey);
+      const [bridgeAccentKey, bridgeAccent] = accentEntries[bridgeAccentIdx] ?? [];
       return (
         <div key={`${cycleIdx}-${group.bridgeKey}`}>
-          <div style={{ width: "100%", height: 76, margin: "4px 0 0 0", position: "relative", zIndex: 2, cursor: "pointer" }} onClick={() => onSwatchClick(fullOrder.indexOf(group.bridgeKey))}>
+          <div style={{ width: "100%", height: 92, margin: "4px 0 0 0", position: "relative", zIndex: 2, cursor: "pointer" }} onClick={() => onSwatchClick(bridgeAccentIdx)}>
             <div
               style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, letterSpacing: "0.8px", backgroundColor: bridgeHex, color: bridgeTextColor, clipPath: "polygon(0% 85%, 22% 85%, 22% 15%, 78% 15%, 78% 0%, 100% 0%, 100% 15%, 78% 15%, 78% 85%, 22% 85%, 22% 100%, 0% 100%)", boxShadow: "0 2px 6px rgba(0,0,0,0.4)", transition: "filter 0.2s, transform 0.1s" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.filter = "brightness(1.1)"; (e.currentTarget as HTMLElement).style.transform = "scaleY(1.01)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.filter = ""; (e.currentTarget as HTMLElement).style.transform = ""; }}
             >
-              <div style={{ fontWeight: 800, fontSize: "1.2rem" }}>{group.bridgeKey}</div>
-              <span style={{ fontSize: 10, fontWeight: 400, opacity: 0.75, marginTop: 3 }}>{formatColor(bridgeHex, format)}</span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <span style={{ fontWeight: 800, fontSize: "1.2rem" }}>{group.bridgeKey}</span>
+                {bridgeAccentKey && <span style={{ fontWeight: 400, fontSize: "0.7rem", opacity: 0.65 }}>"{bridgeAccentKey}"</span>}
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 400, opacity: 0.75, marginTop: 2 }}>{formatColor(bridgeHex, format)}</span>
+              {bridgeAccent && (
+                <span style={{ marginTop: 4, fontSize: "0.65rem", fontWeight: 700, fontFamily: "sans-serif", background: bridgeAccent.onHex, color: bridgeHex, padding: "1px 6px", whiteSpace: "nowrap" }}>
+                  {lang === "ru" ? bridgeAccent.name.split(" / ")[0] : (bridgeAccent.name.split(" / ")[1] || bridgeAccent.name.split(" / ")[0])}
+                </span>
+              )}
             </div>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "stretch", background: "#0c0c0c", padding: "12px 8px", border: "1px solid #262626", marginBottom: 2, position: "relative", zIndex: 1 }}>
             {group.rowKeys.map((key) => {
               const hex = allColors[key];
               const textColor = getTextColor(hex);
+              const accentIdx = fullOrder.indexOf(key);
+              const [accentKey, accent] = accentEntries[accentIdx] ?? [];
+              const accentName = accent ? (lang === "ru" ? accent.name.split(" / ")[0] : (accent.name.split(" / ")[1] || accent.name.split(" / ")[0])) : "";
               return (
                 <div
                   key={key}
-                  onClick={() => onSwatchClick(fullOrder.indexOf(key))}
-                  style={{ flex: 1, aspectRatio: "1/1", minWidth: 65, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, cursor: "pointer", textAlign: "center", padding: "5px 2px", backgroundColor: hex, color: textColor, boxShadow: "0 1px 2px rgba(0,0,0,0.2)", transition: "transform 0.15s cubic-bezier(0.2,0.9,0.4,1.1), box-shadow 0.1s", fontFamily: "monospace" }}
+                  onClick={() => onSwatchClick(accentIdx)}
+                  style={{ flex: 1, minWidth: 65, minHeight: 90, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, cursor: "pointer", textAlign: "center", padding: "6px 3px", backgroundColor: hex, color: textColor, boxShadow: "0 1px 2px rgba(0,0,0,0.2)", transition: "transform 0.15s cubic-bezier(0.2,0.9,0.4,1.1), box-shadow 0.1s", fontFamily: "monospace", gap: 2 }}
                   onMouseEnter={(e) => { const el = e.currentTarget; el.style.transform = "scale(1.03)"; el.style.boxShadow = "0 0 14px rgba(255,255,220,0.3)"; el.style.zIndex = "10"; }}
                   onMouseLeave={(e) => { const el = e.currentTarget; el.style.transform = ""; el.style.boxShadow = "0 1px 2px rgba(0,0,0,0.2)"; el.style.zIndex = ""; }}
                 >
                   <div style={{ fontWeight: 700, fontSize: 11 }}>{key}</div>
-                  <div style={{ fontSize: 8, opacity: 0.75, marginTop: 3 }}>{formatColor(hex, format)}</div>
+                  {accentKey && <div style={{ fontSize: 7, opacity: 0.55 }}>"{accentKey}"</div>}
+                  <div style={{ fontSize: 7, opacity: 0.75, marginTop: 1 }}>{formatColor(hex, format)}</div>
+                  {accentName && (
+                    <div style={{ marginTop: 3, fontSize: "0.55rem", fontWeight: 700, fontFamily: "sans-serif", background: accent?.onHex, color: hex, padding: "1px 4px", lineHeight: 1.4, maxWidth: "90%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {accentName}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -352,33 +374,25 @@ function BaseTab({ showToast, format }: { showToast: (s: string) => void; format
 
 // ─── Вкладка 3: Акцентные карточки (из файла 3) ───────────────────────────────
 
-function NameBadges({ name, accentHex, onHex }: { name: string; accentHex: string; onHex: string }) {
+function NameBadge({ name, accentHex, onHex, lang }: { name: string; accentHex: string; onHex: string; lang: "ru" | "en" }) {
   const [ru, en] = name.split(" / ");
-  const badge = (text: string) => (
-    <span key={text} style={{
+  const text = lang === "ru" ? (ru || en) : (en || ru);
+  return (
+    <span style={{
       display: "inline-block",
       background: onHex,
       color: accentHex,
-      fontSize: "0.68rem",
+      fontSize: "0.7rem",
       fontWeight: 700,
       fontFamily: "sans-serif",
-      padding: "2px 6px",
+      padding: "2px 8px",
       lineHeight: 1.5,
       whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: 130,
     }}>{text}</span>
-  );
-  return (
-    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-      {ru && badge(ru)}
-      {en && badge(en)}
-    </div>
   );
 }
 
-function AccentTab({ showToast, format }: { showToast: (s: string) => void; format: ColorFormat }) {
+function AccentTab({ showToast, format, lang }: { showToast: (s: string) => void; format: ColorFormat; lang: "ru" | "en" }) {
   const demoText = '!"№@#$;%^:&?*()_+.,<>фывasd';
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 40px" }}>
@@ -388,9 +402,9 @@ function AccentTab({ showToast, format }: { showToast: (s: string) => void; form
           const onVal = formatColor(color.onHex, format);
           return (
             <div key={key} style={{ background: "#161616", border: "1px solid #363636", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <div style={{ borderBottom: "1px solid #262626", paddingBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, overflow: "hidden" }}>
+              <div style={{ borderBottom: "1px solid #262626", paddingBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                 <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem", fontFamily: "monospace", flexShrink: 0 }}>"{key}"</span>
-                <NameBadges name={color.name} accentHex={color.hex} onHex={color.onHex} />
+                <NameBadge name={color.name} accentHex={color.hex} onHex={color.onHex} lang={lang} />
               </div>
               <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>
                 <div style={{ fontSize: "0.62rem", opacity: 0.55, marginBottom: 4 }}>base-0 / #060606</div>
@@ -398,7 +412,7 @@ function AccentTab({ showToast, format }: { showToast: (s: string) => void; form
               </div>
               <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: color.onHex }}>
                 <div style={{ marginBottom: 4 }}>
-                  <NameBadges name={color.onName} accentHex={color.hex} onHex={color.onHex} />
+                  <NameBadge name={color.onName} accentHex={color.hex} onHex={color.onHex} lang={lang} />
                 </div>
                 {demoText}
               </div>
@@ -435,15 +449,24 @@ interface HeaderProps {
   onTab: (t: Tab) => void;
   format: ColorFormat;
   onFormat: (f: ColorFormat) => void;
-  showFormat: boolean;
+  lang: "ru" | "en";
+  onLang: (l: "ru" | "en") => void;
 }
 
-function Header({ activeTab, onTab, format, onFormat, showFormat }: HeaderProps) {
+function Header({ activeTab, onTab, format, onFormat, lang, onLang }: HeaderProps) {
   const tabs: { id: Tab; label: string }[] = [
     { id: "palette", label: "Акцент" },
     { id: "base",    label: "Base 0–f" },
     { id: "accent",  label: "Карточки" },
   ];
+
+  const btn = (active: boolean, onClick: () => void, label: string) => (
+    <button
+      key={label}
+      onClick={onClick}
+      style={{ background: active ? "#363636" : "#161616", color: active ? "#f6f6f6" : "#666666", border: `1px solid ${active ? "#868686" : "#363636"}`, padding: "4px 10px", cursor: "pointer", fontFamily: "monospace", fontSize: 10, textTransform: "uppercase", transition: "all 0.15s" }}
+    >{label}</button>
+  );
 
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, background: "#0a0a0a", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 44 }}>
@@ -456,17 +479,16 @@ function Header({ activeTab, onTab, format, onFormat, showFormat }: HeaderProps)
           >{label}</button>
         ))}
       </div>
-      {showFormat && (
-        <div style={{ display: "flex", gap: 6 }}>
-          {(["hex", "rgb", "hsl"] as ColorFormat[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => onFormat(f)}
-              style={{ background: format === f ? "#363636" : "#161616", color: format === f ? "#f6f6f6" : "#666666", border: `1px solid ${format === f ? "#868686" : "#363636"}`, padding: "4px 10px", cursor: "pointer", fontFamily: "monospace", fontSize: 10, textTransform: "uppercase", transition: "all 0.15s" }}
-            >{f}</button>
-          ))}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", gap: 4 }}>
+          {btn(lang === "ru", () => onLang("ru"), "RU")}
+          {btn(lang === "en", () => onLang("en"), "EN")}
         </div>
-      )}
+        <div style={{ width: 1, height: 18, background: "#363636" }} />
+        <div style={{ display: "flex", gap: 4 }}>
+          {(["hex", "rgb", "hsl"] as ColorFormat[]).map((f) => btn(format === f, () => onFormat(f), f))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -476,6 +498,7 @@ function Header({ activeTab, onTab, format, onFormat, showFormat }: HeaderProps)
 export default function PaletteApp() {
   const [tab, setTab] = useState<Tab>("palette");
   const [format, setFormat] = useState<ColorFormat>("hex");
+  const [lang, setLang] = useState<"ru" | "en">("ru");
   const [carouselIdx, setCarouselIdx] = useState<number | null>(null);
   const { msg, visible, show } = useToast();
 
@@ -500,11 +523,11 @@ export default function PaletteApp() {
 
   return (
     <div style={{ background: "#060606", color: "#d6d6d6", minHeight: "100vh", fontFamily: "'SF Mono','Fira Code',monospace", overflowX: "hidden" }}>
-      <Header activeTab={tab} onTab={handleTab} format={format} onFormat={setFormat} showFormat={true} />
+      <Header activeTab={tab} onTab={handleTab} format={format} onFormat={setFormat} lang={lang} onLang={setLang} />
 
-      {tab === "palette" && <PaletteGrid format={format} onSwatchClick={openCarousel} />}
+      {tab === "palette" && <PaletteGrid format={format} lang={lang} onSwatchClick={openCarousel} />}
       {tab === "base"    && <div style={{ paddingTop: 44 }}><BaseTab showToast={show} format={format} /></div>}
-      {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} format={format} /></div>}
+      {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} format={format} lang={lang} /></div>}
 
       {carouselIdx !== null && (
         <Carousel index={carouselIdx} format={format} onClose={closeCarousel} onNavigate={navigate} showToast={show} />
