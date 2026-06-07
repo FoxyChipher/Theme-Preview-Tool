@@ -360,12 +360,18 @@ function AccentTab({ showToast }: { showToast: (s: string) => void }) {
           <div key={key} style={{ background: "#161616", border: "1px solid #363636", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontFamily: "monospace", borderBottom: "1px solid #262626", paddingBottom: "0.4rem" }}>
               <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem" }}>"{key}"</span>
-              <span style={{ flex: 1, textAlign: "center", fontSize: "0.85rem", background: "#262626", padding: "0.1rem 0.5rem", margin: "0 0.5rem", color: color.hex }}>{color.name}</span>
+              <span style={{ flex: 1, textAlign: "center", fontSize: "0.78rem", background: "#262626", padding: "0.1rem 0.5rem", margin: "0 0.5rem", color: color.hex }}>{color.name}</span>
             </div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>{demoText}</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: color.onHex, border: "1px solid rgba(0,0,0,0.1)" }}>{demoText}</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, background: "#060606", padding: 8, border: "1px dashed #363636" }}>
-              {([[`Акцентный фон:`, color.hex.toUpperCase(), color.hex], [`Текст (onAccent):`, color.onHex.toUpperCase(), color.onHex]] as [string, string, string][]).map(([label, val, sw]) => (
+            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>
+              <div style={{ fontSize: "0.65rem", opacity: 0.6, marginBottom: 3 }}>base-0 / #060606</div>
+              {demoText}
+            </div>
+            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: color.onHex }}>
+              <div style={{ fontSize: "0.65rem", opacity: 0.7, marginBottom: 3 }}>{color.onName} / {color.onHex}</div>
+              {demoText}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, background: "#060606", padding: 8, border: "1px dashed #363636" }}>
+              {([["accent:", color.hex.toUpperCase(), color.hex], ["onAccent:", color.onHex.toUpperCase(), color.onHex]] as [string, string, string][]).map(([label, val, sw]) => (
                 <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
                   <div style={{ color: "#666666", display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ display: "inline-block", width: 14, height: 14, border: "1px solid #464646", background: sw, flexShrink: 0 }} />
