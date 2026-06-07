@@ -53,6 +53,9 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    watch: process.env.REPL_ID
+      ? undefined
+      : { usePolling: true, interval: 800 },
   },
   preview: {
     port,
