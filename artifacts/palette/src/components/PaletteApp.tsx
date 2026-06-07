@@ -359,16 +359,19 @@ function NameBadges({ name, accentHex, onHex }: { name: string; accentHex: strin
       display: "inline-block",
       background: onHex,
       color: accentHex,
-      fontSize: "0.7rem",
+      fontSize: "0.68rem",
       fontWeight: 700,
       fontFamily: "sans-serif",
-      padding: "2px 7px",
+      padding: "2px 6px",
       lineHeight: 1.5,
       whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      maxWidth: 130,
     }}>{text}</span>
   );
   return (
-    <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
       {ru && badge(ru)}
       {en && badge(en)}
     </div>
@@ -385,8 +388,8 @@ function AccentTab({ showToast, format }: { showToast: (s: string) => void; form
           const onVal = formatColor(color.onHex, format);
           return (
             <div key={key} style={{ background: "#161616", border: "1px solid #363636", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <div style={{ borderBottom: "1px solid #262626", paddingBottom: "0.5rem" }}>
-                <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem", fontFamily: "monospace", display: "block", marginBottom: 6 }}>"{key}"</span>
+              <div style={{ borderBottom: "1px solid #262626", paddingBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, overflow: "hidden" }}>
+                <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem", fontFamily: "monospace", flexShrink: 0 }}>"{key}"</span>
                 <NameBadges name={color.name} accentHex={color.hex} onHex={color.onHex} />
               </div>
               <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>
