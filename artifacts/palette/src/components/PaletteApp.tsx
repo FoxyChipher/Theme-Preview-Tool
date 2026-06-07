@@ -279,7 +279,7 @@ function PaletteGrid({ format, onSwatchClick }: PaletteGridProps) {
 
 // ─── Вкладка 2: Base palette ──────────────────────────────────────────────────
 
-function BaseTab({ showToast }: { showToast: (s: string) => void }) {
+function BaseTab({ showToast, format }: { showToast: (s: string) => void; format: ColorFormat }) {
   const entries = Object.entries(basePalette);
   const gradient = entries.map(([, v]) => v.hex).join(", ");
 
@@ -292,11 +292,12 @@ function BaseTab({ showToast }: { showToast: (s: string) => void }) {
           const luminance = parseInt(item.hex.slice(1, 3), 16);
           const textColor = luminance > 120 ? "#060606" : "#f6f6f6";
           const subColor = luminance > 120 ? "#26262680" : "#f6f6f640";
+          const displayVal = formatColor(item.hex, format);
           return (
             <div
               key={key}
               style={{ background: item.hex, padding: "18px 14px", cursor: "pointer", position: "relative", minHeight: 110, display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "transform 0.1s" }}
-              onClick={() => copyText(item.hex, showToast)}
+              onClick={() => copyText(displayVal, showToast)}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.02)"; (e.currentTarget as HTMLElement).style.zIndex = "5"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.zIndex = ""; }}
             >
@@ -304,7 +305,7 @@ function BaseTab({ showToast }: { showToast: (s: string) => void }) {
                 <div style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 22, color: textColor, letterSpacing: "0.05em" }}>base-{key}</div>
                 <div style={{ fontFamily: "monospace", fontSize: 11, color: textColor, opacity: 0.7, marginTop: 4 }}>{item.desc}</div>
               </div>
-              <div style={{ fontFamily: "monospace", fontSize: 13, color: textColor, borderTop: `1px solid ${subColor}`, paddingTop: 8, marginTop: 8 }}>{item.hex}</div>
+              <div style={{ fontFamily: "monospace", fontSize: 13, color: textColor, borderTop: `1px solid ${subColor}`, paddingTop: 8, marginTop: 8 }}>{displayVal}</div>
             </div>
           );
         })}
@@ -374,45 +375,49 @@ function NameBadges({ name, accentHex, onHex }: { name: string; accentHex: strin
   );
 }
 
-function AccentTab({ showToast }: { showToast: (s: string) => void }) {
+function AccentTab({ showToast, format }: { showToast: (s: string) => void; format: ColorFormat }) {
   const demoText = '!"№@#$;%^:&?*()_+.,<>фывasd';
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 40px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-        {Object.entries(accentColors).map(([key, color]) => (
-          <div key={key} style={{ background: "#161616", border: "1px solid #363636", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", borderBottom: "1px solid #262626", paddingBottom: "0.5rem", flexWrap: "wrap" }}>
-              <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem", fontFamily: "monospace" }}>"{key}"</span>
-              <NameBadges name={color.name} accentHex={color.hex} onHex={color.onHex} />
-            </div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>
-              <div style={{ fontSize: "0.62rem", opacity: 0.55, marginBottom: 4 }}>base-0 / #060606</div>
-              {demoText}
-            </div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: color.onHex }}>
-              <div style={{ marginBottom: 4 }}>
-                <NameBadges name={color.onName} accentHex={color.hex} onHex={color.onHex} />
+        {Object.entries(accentColors).map(([key, color]) => {
+          const accentVal = formatColor(color.hex, format);
+          const onVal = formatColor(color.onHex, format);
+          return (
+            <div key={key} style={{ background: "#161616", border: "1px solid #363636", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ borderBottom: "1px solid #262626", paddingBottom: "0.5rem" }}>
+                <span style={{ color: "#f6f6f6", fontWeight: "bold", fontSize: "0.9rem", fontFamily: "monospace", display: "block", marginBottom: 6 }}>"{key}"</span>
+                <NameBadges name={color.name} accentHex={color.hex} onHex={color.onHex} />
               </div>
-              {demoText}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5, background: "#060606", padding: 8, border: "1px dashed #363636" }}>
-              {([["accent:", color.hex.toUpperCase(), color.hex], ["onAccent:", color.onHex.toUpperCase(), color.onHex]] as [string, string, string][]).map(([label, val, sw]) => (
-                <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
-                  <div style={{ color: "#666666", display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ display: "inline-block", width: 14, height: 14, border: "1px solid #464646", background: sw, flexShrink: 0 }} />
-                    {label}
-                  </div>
-                  <span
-                    onClick={() => copyText(val, showToast)}
-                    style={{ color: "#c6c6c6", cursor: "pointer", padding: "2px 6px", background: "#161616", border: "1px solid #262626", fontFamily: "monospace", fontSize: "0.72rem" }}
-                    onMouseEnter={(e) => { const el = e.currentTarget; el.style.borderColor = "#666"; el.style.color = "#f6f6f6"; el.style.background = "#262626"; }}
-                    onMouseLeave={(e) => { const el = e.currentTarget; el.style.borderColor = "#262626"; el.style.color = "#c6c6c6"; el.style.background = "#161616"; }}
-                  >{val}</span>
+              <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: "#060606" }}>
+                <div style={{ fontSize: "0.62rem", opacity: 0.55, marginBottom: 4 }}>base-0 / #060606</div>
+                {demoText}
+              </div>
+              <div style={{ fontFamily: "monospace", fontSize: "0.85rem", padding: "0.5rem", wordBreak: "break-all", fontWeight: 600, background: color.hex, color: color.onHex }}>
+                <div style={{ marginBottom: 4 }}>
+                  <NameBadges name={color.onName} accentHex={color.hex} onHex={color.onHex} />
                 </div>
-              ))}
+                {demoText}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5, background: "#060606", padding: 8, border: "1px dashed #363636" }}>
+                {([[`accent:`, accentVal, color.hex], [`onAccent:`, onVal, color.onHex]] as [string, string, string][]).map(([label, val, sw]) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
+                    <div style={{ color: "#666666", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ display: "inline-block", width: 14, height: 14, border: "1px solid #464646", background: sw, flexShrink: 0 }} />
+                      {label}
+                    </div>
+                    <span
+                      onClick={() => copyText(val, showToast)}
+                      style={{ color: "#c6c6c6", cursor: "pointer", padding: "2px 6px", background: "#161616", border: "1px solid #262626", fontFamily: "monospace", fontSize: "0.72rem" }}
+                      onMouseEnter={(e) => { const el = e.currentTarget; el.style.borderColor = "#666"; el.style.color = "#f6f6f6"; el.style.background = "#262626"; }}
+                      onMouseLeave={(e) => { const el = e.currentTarget; el.style.borderColor = "#262626"; el.style.color = "#c6c6c6"; el.style.background = "#161616"; }}
+                    >{val}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -492,11 +497,11 @@ export default function PaletteApp() {
 
   return (
     <div style={{ background: "#060606", color: "#d6d6d6", minHeight: "100vh", fontFamily: "'SF Mono','Fira Code',monospace", overflowX: "hidden" }}>
-      <Header activeTab={tab} onTab={handleTab} format={format} onFormat={setFormat} showFormat={tab === "palette"} />
+      <Header activeTab={tab} onTab={handleTab} format={format} onFormat={setFormat} showFormat={true} />
 
       {tab === "palette" && <PaletteGrid format={format} onSwatchClick={openCarousel} />}
-      {tab === "base"    && <div style={{ paddingTop: 44 }}><BaseTab showToast={show} /></div>}
-      {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} /></div>}
+      {tab === "base"    && <div style={{ paddingTop: 44 }}><BaseTab showToast={show} format={format} /></div>}
+      {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} format={format} /></div>}
 
       {carouselIdx !== null && (
         <Carousel index={carouselIdx} format={format} onClose={closeCarousel} onNavigate={navigate} showToast={show} />
