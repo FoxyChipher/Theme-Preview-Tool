@@ -29,13 +29,15 @@ function copyText(text: string, show: (s: string) => void) {
 interface CarouselProps {
   index: number;
   format: ColorFormat;
+  lang: "ru" | "en";
   onClose: () => void;
   onNavigate: (delta: number) => void;
   showToast: (s: string) => void;
 }
 
-function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast }: CarouselProps) {
+function Carousel({ index, format: initialFormat, lang, onClose, onNavigate, showToast }: CarouselProps) {
   const [localFormat, setLocalFormat] = useState<ColorFormat>(initialFormat);
+  const accentEntries = Object.entries(accentColors);
   const total = fullOrder.length;
 
   useEffect(() => {
@@ -84,6 +86,10 @@ function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast
           const { h, s, l } = rgbToHsl(r, g, b);
           const accentVal = formatColor(hex, localFormat);
           const m3val = formatM3Color(hex, localFormat);
+          const [accentKey, accentEntry] = accentEntries[idx] ?? [];
+          const colorName = accentEntry
+            ? (lang === "ru" ? accentEntry.name.split(" / ")[0] : (accentEntry.name.split(" / ")[1] || accentEntry.name.split(" / ")[0]))
+            : key;
 
           if (isCenter) {
             return (
@@ -93,8 +99,11 @@ function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast
               >
                 {/* ── Герой ── */}
                 <div style={{ padding: "32px 24px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", background: hex }}>
-                  <div style={{ fontSize: "2.8rem", fontWeight: 800, letterSpacing: 1, color: adaptive }}>{key}</div>
-                  <div style={{ fontSize: 13, marginTop: 8, color: adaptive, fontFamily: "monospace", fontWeight: 600 }}>{accentVal}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                    <span style={{ fontSize: "2rem", fontWeight: 800, letterSpacing: 1, color: adaptive, fontFamily: "sans-serif" }}>{colorName}</span>
+                    <span style={{ fontSize: "0.85rem", color: adaptive, opacity: 0.6, fontFamily: "monospace", fontWeight: 400 }}>"{accentKey}"</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: adaptive, fontFamily: "monospace", fontWeight: 600 }}>{accentVal}</div>
 
                   {/* ── Кнопки переключения формата ── */}
                   <div style={{ marginTop: 16, display: "flex", gap: 6, background: "rgba(0,0,0,0.35)", padding: "6px 10px", backdropFilter: "blur(4px)" }}>
@@ -150,12 +159,13 @@ function Carousel({ index, format: initialFormat, onClose, onNavigate, showToast
             <div
               key={idx}
               onClick={() => onNavigate(pos < 2 ? -(2 - pos) : pos - 2)}
-              style={{ width: 120, height: 140, background: hex, color: adaptive, opacity: 0.45, filter: "brightness(0.65)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 10px 24px rgba(0,0,0,0.6)", transition: "transform 0.28s cubic-bezier(0.2,0.85,0.4,1), opacity 0.25s" }}
+              style={{ width: 120, height: 140, background: hex, color: adaptive, opacity: 0.45, filter: "brightness(0.65)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 10px 24px rgba(0,0,0,0.6)", transition: "transform 0.28s cubic-bezier(0.2,0.85,0.4,1), opacity 0.25s", padding: "6px 4px", textAlign: "center", gap: 4 }}
               onMouseEnter={(e) => { const el = e.currentTarget; el.style.opacity = "0.85"; el.style.filter = "brightness(0.92)"; el.style.transform = "scale(1.05)"; }}
               onMouseLeave={(e) => { const el = e.currentTarget; el.style.opacity = "0.45"; el.style.filter = "brightness(0.65)"; el.style.transform = "scale(1)"; }}
             >
-              <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>{key}</div>
-              <div style={{ fontSize: 9, marginTop: 6, fontFamily: "monospace" }}>{hex}</div>
+              <div style={{ fontSize: "0.65rem", fontWeight: 700, fontFamily: "sans-serif", wordBreak: "break-word", lineHeight: 1.3 }}>{colorName}</div>
+              <div style={{ fontSize: 8, fontFamily: "monospace", opacity: 0.7 }}>"{accentKey}"</div>
+              <div style={{ fontSize: 8, fontFamily: "monospace", opacity: 0.55 }}>{hex}</div>
             </div>
           );
         })}
@@ -528,7 +538,7 @@ export default function PaletteApp() {
       {tab === "accent"  && <div style={{ paddingTop: 44 }}><AccentTab showToast={show} format={format} lang={lang} /></div>}
 
       {carouselIdx !== null && (
-        <Carousel index={carouselIdx} format={format} onClose={closeCarousel} onNavigate={navigate} showToast={show} />
+        <Carousel index={carouselIdx} format={format} lang={lang} onClose={closeCarousel} onNavigate={navigate} showToast={show} />
       )}
 
       <div style={{ position: "fixed", bottom: 20, right: 20, background: "#464646", color: "#f6f6f6", padding: "8px 16px", border: "1px solid #666666", fontSize: "0.8rem", fontFamily: "monospace", opacity: visible ? 1 : 0, pointerEvents: "none", transition: "opacity 0.15s", zIndex: 2000 }}>
